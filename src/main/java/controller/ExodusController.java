@@ -5,8 +5,10 @@ package controller;
 
 import com.mongodb.*;
 import com.mongodb.MongoClient;
+
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.UnknownHostException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,24 +20,67 @@ public class ExodusController {
     private User activeUser = null;
     private SavedGame activeGame = null;
 
-    public static void main(String[] args) throws IOException {
+    public void main(String[] args) throws IOException {
         MongoClient c =  new MongoClient(new MongoClientURI("mongodb://localhost"));
         DB db_exodusGame = c.getDB("exodusGame");
-        int i =0;
-        DBCollection coll_Questions = db_exodusGame.getCollection("questions");
 
-        DBCursor cursor = images.find();
-        cursor.next();
+        int i = 0;
+        while(db_exodusGame==null && i<3){
+            System.out.println("Retrying... ["+i+"]");
+            db_exodusGame = c.getDB("exodusGame");
 
-        while (cursor.hasNext()){
-            Object id = cursor.curr().get("_id");
-            DBCursor cursoralbum = albuns.find(new BasicDBObject("images", id));
-            if(!cursoralbum.hasNext()){
-                images.remove(new BasicDBObject("_id", id));
-            }
-            cursor.next();
         }
-        System.out.println("the end\n");
+        if (db_exodusGame!=null){
+            DBCollection coll_Questions = db_exodusGame.getCollection("questions");
+            int lastChoose = 0;
+            while(lastChoose != 5){
+                switch (lastChoose){
+                    case 0:
+                        lastChoose=startMenu();
+                    case 1:
+
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    case 5:
+                        break;
+                    default:
+                        System.out.println("Wrong option, please choose another");
+                }
+            }
+
+        } else {
+            System.out.println("Connection failed");
+        }
+
+        System.out.println("the exodus game shall rise again\n");
+    }
+
+    public int startMenu(){
+        System.out.println("1 - New Game");
+        System.out.println("2 - Load Game");
+        System.out.println("3 - Best Scores");
+        System.out.println("4 - Credits");
+        System.out.println("5 - Exit Game");
+
+        int selectedOption = -1;
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String option = null;
+        try {
+            option = br.readLine();
+            if (option.matches("-?\\d+")){
+                selectedOption = Integer.parseInt(option);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return selectedOption;
     }
 
     public ArrayList<SavedGame> getSavedGames(){
@@ -99,7 +144,7 @@ public class ExodusController {
                 String answer4 = (String)obj.get("answer4");
                 String correctAnswer = (String)obj.get("correctAnswer");
 
-                Question ques = new Question(question, answer1, answer2, answer3, answer4, correctAnswer);
+                ques = new Question(question, answer1, answer2, answer3, answer4, correctAnswer);
 
                 this.usedQuestions.put(key,ques);
             }
