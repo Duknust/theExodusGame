@@ -3,6 +3,7 @@
 
 package controller;
 
+import administration.QuestionManager;
 import com.mongodb.*;
 import com.mongodb.MongoClient;
 
@@ -24,6 +25,9 @@ public class ExodusController {
         MongoClient c =  new MongoClient(new MongoClientURI("mongodb://localhost"));
         DB db_exodusGame = c.getDB("exodusGame");
 
+
+        //start auxiliar classes
+        QuestionManager qm = new QuestionManager(db_exodusGame);
         int i = 0;
         while(db_exodusGame==null && i<3){
             System.out.println("Retrying... ["+i+"]");
@@ -35,21 +39,19 @@ public class ExodusController {
             int lastChoose = 0;
             while(lastChoose != 5){
                 switch (lastChoose){
-                    case 0:
+                    case 1: //New Game
                         lastChoose=startMenu();
-                    case 1:
-
+                    case 2: //Load Game
                         break;
-                    case 2:
+                    case 3: //Best Scores
                         break;
-                    case 3:
+                    case 4: //Credits
                         break;
-                    case 4:
-                        break;
-                    case 5:
+                    case 5: //Exit Game
                         break;
                     default:
                         System.out.println("Wrong option, please choose another");
+                        lastChoose=startMenu();
                 }
             }
 
@@ -73,7 +75,7 @@ public class ExodusController {
         String option = null;
         try {
             option = br.readLine();
-            if (option.matches("-?\\d+")){
+            if (option.matches("\\d+")){
                 selectedOption = Integer.parseInt(option);
             }
         } catch (IOException e) {
@@ -149,7 +151,7 @@ public class ExodusController {
                 this.usedQuestions.put(key,ques);
             }
         }
-        return ques;;
+        return ques;
     }
 
     public Question getNewQuestionByTheme(int theme){
